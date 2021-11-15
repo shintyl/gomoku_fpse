@@ -1,0 +1,8 @@
+(rule
+  (target gomoku.zip)
+  (deps 
+    src/board.ml
+    src/dune
+  )
+  (action
+    (run zip -R gomoku.zip %{deps})))

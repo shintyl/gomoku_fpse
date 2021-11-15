@@ -1,0 +1,9 @@
+(library
+  (name board)
+  (modules board)
+  (libraries 
+    core)
+  (preprocess
+    (pps ppx_jane)
+  )
+)
