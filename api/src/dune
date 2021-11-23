@@ -1,9 +1,13 @@
 (library
-  (name board)
-  (modules board)
-  (libraries 
-    core)
-  (preprocess
-    (pps ppx_jane)
-  )
-)
+ (name board)
+ (modules board)
+ (libraries core)
+ (preprocess
+  (pps ppx_jane)))
+
+(executable
+ (name server)
+ (modules server)
+ (libraries core dream yojson ppx_deriving_yojson.runtime)
+ (preprocess
+  (pps ppx_deriving_yojson ppx_jane lwt_ppx)))
