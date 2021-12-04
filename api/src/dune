@@ -8,6 +8,6 @@
 (executable
  (name server)
  (modules server)
- (libraries core dream yojson ppx_deriving_yojson.runtime)
+ (libraries board core dream yojson ppx_deriving_yojson.runtime)
  (preprocess
   (pps ppx_deriving_yojson ppx_jane lwt_ppx)))
