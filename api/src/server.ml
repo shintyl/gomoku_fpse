@@ -1,27 +1,3 @@
-(* let () =
-  let empty = Board.Board.Vect2Map.empty in
-
-  match Board.Board.insert empty (0, 0) 'w' with
-  | Error _ -> failwith "foo"
-  | Ok board -> (
-      match Board.Board.insert board (0, 1) 'w' with
-      | Error _ -> failwith "foo"
-      | Ok board -> (
-          match Board.Board.insert board (0, 2) 'w' with
-          | Error _ -> failwith "foo"
-          | Ok board -> (
-              match Board.Board.insert board (0, 3) 'w' with
-              | Error _ -> failwith "foo"
-              | Ok board -> (
-                  match
-                    Board.Board.insert_check board
-                      [ (1, 0); (1, 1); (0, 1); (-1, 1) ]
-                      (0, 4) 'w'
-                  with
-                  | Error _ -> failwith "foo"
-                  | Ok false -> print_string "a\n"
-                  | Ok true -> print_string "b\n"
-                  )))); *)
 open Core
 
    type message_object = { message : string } [@@deriving yojson]
