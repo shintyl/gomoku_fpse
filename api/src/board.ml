@@ -7,13 +7,16 @@ end
 module Board = struct
   module Vect2Map : Map.S with type Key.t = Vect2.t = Map.Make (Vect2)
 
+  type piece_location = { x : int; y : int; c : char } [@@deriving yojson]
+
   type pieces = Char.t Vect2Map.t
 
   type dirs = Vect2.t List.t
 
   let yojson_of_pieces (m : pieces) =
-    Vect2Map.to_alist m |> [%to_yojson: ((int * int) * char) list]
-    |> Yojson.Safe.to_string
+    Vect2Map.to_alist m
+    |> List.map ~f:(fun (v2, c) -> match v2 with x, y -> { x; y; c })
+    |> [%to_yojson: piece_location list] |> Yojson.Safe.to_string
 
   let insert (p : pieces) ((x, y) : Vect2.t) (t : char) :
       (pieces, pieces) result =

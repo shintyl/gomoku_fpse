@@ -10,6 +10,8 @@ module Board : sig
     *)
     module Vect2Map : Map.S with type Key.t = Vect2.t
 
+    type piece_location = { x : int; y : int; c : char } [@@deriving yojson]
+
     (*
         Mapping from vectors of 2 elements (positions on board)
         to characters (representing player or type/color of piece.)

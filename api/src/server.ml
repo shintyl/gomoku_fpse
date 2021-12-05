@@ -138,7 +138,19 @@ let () =
                            w_id = game_state.w_id;
                          };
                      Dream.json (Board.Board.yojson_of_pieces new_board));
-             (* Dream.get "get_board" *)
+             Dream.get "get_board" (fun request ->
+                 let session_id =
+                   match Dream.session "session" request with
+                   | Some s -> s
+                   | None -> failwith "Could not find session"
+                 in
+                 let game_id =
+                   Hashtbl.find_exn session_id_to_game_id session_id
+                 in
+                 let game_state =
+                   Hashtbl.find_exn game_id_to_game_state game_id
+                 in
+                 Dream.json (Board.Board.yojson_of_pieces game_state.board));
            ];
          Dream.get "/no_op" (fun _ -> Dream.json "no op");
        ]
