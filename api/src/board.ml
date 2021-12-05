@@ -45,11 +45,10 @@ module Board = struct
         | [] -> (0, []))
   (* should not happen as per longest_1d implementation. *)
 
-  let insert_check (p : pieces) (d : dirs) ((x, y) : Vect2.t) (t : char) : bool
-      =
+  let insert_check (p : pieces) (d : dirs) ((x, y) : Vect2.t) (t : char) : bool =
     match insert p (x, y) t with
-    | Ok _ ->
-        let conv (dir : Vect2.t) = longest_line p (x, y) dir in
+    | Ok q ->
+        let conv (dir : Vect2.t) = longest_line q (x, y) dir in
         let check (b : bool) ((v, _) : int * Vect2.t list) : bool =
           b || v = 5
         in
