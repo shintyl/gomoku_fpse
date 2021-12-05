@@ -1,9 +1,9 @@
 (library
  (name board)
  (modules board)
- (libraries core)
+ (libraries core yojson ppx_deriving_yojson.runtime)
  (preprocess
-  (pps ppx_jane)))
+  (pps ppx_jane ppx_deriving_yojson)))
 
 (executable
  (name server)

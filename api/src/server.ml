@@ -2,10 +2,9 @@ open Core
 
 type message_object = { message : string } [@@deriving yojson]
 
-module Foo = Board.Board
+type coords_object = { x : int; y : int } [@@deriving yojson]
 
 let deserialize_message body =
-  
   `String
     (match body |> Yojson.Safe.from_string |> message_object_of_yojson with
     | Error _ ->
@@ -16,24 +15,131 @@ let deserialize_message body =
   |> fun x ->
   String.drop_prefix x 1 |> fun x -> String.drop_suffix x 1
 
+let deserialize_coords body =
+  match body |> Yojson.Safe.from_string |> coords_object_of_yojson with
+  | Error _ ->
+      failwith
+        "JSON deserialization failure, could not find \"x\" and \"y\" field"
+  | Ok res -> res
+
+let six_digit_random () =
+  let rec gen len =
+    if len = 5 then Int.to_string (Random.int 10)
+    else Int.to_string (Random.int 10) ^ gen (len + 1)
+  in
+  gen 0
+
+type game_state = {
+  board : Board.Board.pieces;
+  is_black_turn : bool;
+  b_id : string;
+  w_id : string;
+}
+
 let () =
-  let user_id_to_game_id = Hashtbl.create (module String) in
-  let game_id_to_game_board = Hashtbl.create (module String) in
+  Random.self_init ();
+
+  let sessions = Hash_set.create (module String) in
+  let session_id_to_game_id = Hashtbl.create (module String) in
+  let game_id_to_game_state = Hashtbl.create (module String) in
 
   Dream.run @@ Dream.logger @@ Dream.memory_sessions
   @@ Dream.router
        [
-         Dream.post "/create_game" (fun request ->
-             let%lwt body = Dream.body request in
-             let other_user_id = deserialize_message body in
-             let game_id = other_user_id ^ Dream.session_id request in
-             Hashtbl.add_exn user_id_to_game_id ~key:other_user_id ~data:game_id;
-             Hashtbl.add_exn user_id_to_game_id ~key:(Dream.session_id request)
-               ~data:game_id;
-             Hashtbl.add_exn game_id_to_game_board ~key:game_id ~data:1;
-             Dream.json game_id);
-         Dream.get "/new_session" (fun request ->
-             let%lwt () = Dream.invalidate_session request in
-             Dream.json (Dream.session_id request));
+         Dream.scope "/session" []
+           [
+             Dream.post "/refresh" (fun request ->
+                 let rand_num = six_digit_random () in
+                 Hash_set.add sessions rand_num;
+                 match Dream.session "session" request with
+                 | Some s ->
+                     Hash_set.remove sessions s;
+                     let%lwt () = Dream.invalidate_session request in
+                     let%lwt () =
+                       Dream.put_session "session" rand_num request
+                     in
+                     Dream.json rand_num
+                 | None ->
+                     let%lwt () =
+                       Dream.put_session "session" rand_num request
+                     in
+                     Dream.json rand_num);
+             Dream.get "/get" (fun request ->
+                 match Dream.session "session" request with
+                 | Some s -> Dream.json s
+                 | None -> failwith "Could not find session");
+           ];
+         Dream.scope "/game" []
+           [
+             Dream.post "/create" (fun request ->
+                 let session_id =
+                   match Dream.session "session" request with
+                   | Some s -> s
+                   | None -> failwith "Could not find session"
+                 in
+                 let%lwt body = Dream.body request in
+                 let other_session_id =
+                   let temp = deserialize_message body in
+                   match Hash_set.mem sessions temp with
+                   | false -> failwith "Could not find other client's session"
+                   | true -> temp
+                 in
+                 let game_id = other_session_id ^ session_id in
+                 Hashtbl.add_exn session_id_to_game_id ~key:other_session_id
+                   ~data:game_id;
+                 Hashtbl.add_exn session_id_to_game_id ~key:session_id
+                   ~data:game_id;
+                 Hashtbl.add_exn game_id_to_game_state ~key:game_id
+                   ~data:
+                     {
+                       board = Board.Board.Vect2Map.empty;
+                       is_black_turn = true;
+                       b_id = session_id;
+                       w_id = other_session_id;
+                     };
+                 Dream.json game_id);
+             Dream.post "/make_move" (fun request ->
+                 let%lwt body = Dream.body request in
+                 let coords = deserialize_coords body in
+                 Dream.log "%s" (Int.to_string coords.x);
+                 Dream.log "%s" (Int.to_string coords.y);
+                 let session_id =
+                   match Dream.session "session" request with
+                   | Some s -> s
+                   | None -> failwith "Could not find session"
+                 in
+                 let game_id =
+                   Hashtbl.find_exn session_id_to_game_id session_id
+                 in
+                 let game_state =
+                   Hashtbl.find_exn game_id_to_game_state game_id
+                 in
+                 let color =
+                   match
+                     ( game_state.is_black_turn,
+                       String.equal game_state.b_id session_id )
+                   with
+                   | true, true -> 'b'
+                   | false, false -> 'w'
+                   | _, _ -> failwith "Invalid turn"
+                 in
+                 match
+                   Board.Board.insert game_state.board (coords.x, coords.y)
+                     color
+                 with
+                 | Error _ -> failwith "Invalid move"
+                 | Ok new_board ->
+                     Hashtbl.set game_id_to_game_state ~key:game_id
+                       ~data:
+                         {
+                           board = new_board;
+                           is_black_turn = not game_state.is_black_turn;
+                           b_id = game_state.b_id;
+                           w_id = game_state.w_id;
+                         };
+                     Dream.json (Board.Board.yojson_of_pieces new_board));
+             (* Dream.get "get_board" *)
+           ];
+         Dream.get "/no_op" (fun _ -> Dream.json "no op");
        ]
   @@ Dream.not_found

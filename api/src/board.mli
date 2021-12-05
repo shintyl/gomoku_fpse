@@ -22,6 +22,8 @@ module Board : sig
     *)
     type dirs = (Vect2.t) List.t
 
+    val yojson_of_pieces : pieces -> string
+
     (*
         Insert a new piece into a map of pieces if valid.
         Return an error otherwise.
