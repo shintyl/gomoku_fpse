@@ -47,5 +47,5 @@ module Board : sig
     (*
         Attempt to insert and check if insertion leads to a win.
     *)
-    val insert_check : pieces -> dirs -> Vect2.t -> char -> bool
+    val insert_check : pieces -> dirs -> Vect2.t -> char -> (bool, bool) result
 end
