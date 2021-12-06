@@ -48,51 +48,6 @@ let () =
   Dream.run @@ Dream.logger @@ Dream.memory_sessions
   @@ Dream.router
        [
-         Dream.get "/websocket" (fun request ->
-             Dream.websocket (fun websocket ->
-                 let session_id =
-                   match Dream.session "session" request with
-                   | Some s -> s
-                   | None -> failwith "Could not find session"
-                 in
-                 let game_id =
-                   Hashtbl.find_exn session_id_to_game_id session_id
-                 in
-                 let game_state =
-                   Hashtbl.find_exn game_id_to_game_state game_id
-                 in
-                 Dream.log "%s" game_state.b_id;
-                 Dream.log "%s" game_state.w_id;
-                 Dream.log "%s" session_id;
-                 Hashtbl.set game_id_to_game_state ~key:game_id
-                   ~data:
-                     {
-                       board = game_state.board;
-                       is_black_turn = game_state.is_black_turn;
-                       b_id = game_state.b_id;
-                       w_id = game_state.w_id;
-                       winner_is_black = game_state.winner_is_black;
-                       b_id_ws =
-                         (if String.equal game_state.b_id session_id then
-                          Some websocket
-                         else game_state.b_id_ws);
-                       w_id_ws =
-                         (if String.equal game_state.w_id session_id then
-                          Some websocket
-                         else game_state.w_id_ws);
-                     };
-                 let rec loop () =
-                   match%lwt Dream.receive websocket with
-                   | Some a ->
-                       Dream.log "%s" a;
-                       loop ()
-                   | None -> Dream.close_websocket websocket
-                 in
-                 loop ()));
-         (* let x, _ = game_state.is_black_turn_signal in
-            let send = S.map (Dream.log "%b") x in
-            let%lwt () = Dream.send websocket "Good-bye!" in
-            Dream.close_websocket websocket)); *)
          Dream.scope "/session" []
            [
              Dream.post "/refresh" (fun request ->
@@ -118,6 +73,43 @@ let () =
            ];
          Dream.scope "/game" []
            [
+             Dream.get "/connect" (fun request ->
+                 Dream.websocket (fun websocket ->
+                     let session_id =
+                       match Dream.session "session" request with
+                       | Some s -> s
+                       | None -> failwith "Could not find session"
+                     in
+                     let game_id =
+                       Hashtbl.find_exn session_id_to_game_id session_id
+                     in
+                     let game_state =
+                       Hashtbl.find_exn game_id_to_game_state game_id
+                     in
+                     Hashtbl.set game_id_to_game_state ~key:game_id
+                       ~data:
+                         {
+                           board = game_state.board;
+                           is_black_turn = game_state.is_black_turn;
+                           b_id = game_state.b_id;
+                           w_id = game_state.w_id;
+                           winner_is_black = game_state.winner_is_black;
+                           b_id_ws =
+                             (if String.equal game_state.b_id session_id then
+                              Some websocket
+                             else game_state.b_id_ws);
+                           w_id_ws =
+                             (if String.equal game_state.w_id session_id then
+                              Some websocket
+                             else game_state.w_id_ws);
+                         };
+                     let rec loop () =
+                       match%lwt Dream.receive websocket with
+                       | Some _ ->
+                           loop ()
+                       | None -> Dream.close_websocket websocket
+                     in
+                     loop ()));
              Dream.post "/create" (fun request ->
                  let session_id =
                    match Dream.session "session" request with
