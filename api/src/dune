@@ -3,7 +3,7 @@
  (modules board)
  (libraries core yojson ppx_deriving_yojson.runtime)
  (preprocess
-  (pps ppx_jane ppx_deriving_yojson)))
+  (pps bisect_ppx ppx_jane ppx_deriving_yojson)))
 
 (executable
  (name server)

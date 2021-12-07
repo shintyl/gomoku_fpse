@@ -40,8 +40,8 @@ module Board = struct
     | Some c -> (
         let v1, l1 = longest_1d p c (x, y) (dx, dy) in
         let v2, l2 = longest_1d p c (x, y) (-dx, -dy) in
-        match l1 with
-        | _ :: tl -> (v1 + v2 - 1, List.rev_append tl l2)
+        match l2 with
+        | _ :: tl -> (v1 + v2 - 1, List.rev_append tl l1)
         | [] -> (0, []))
   (* should not happen as per longest_1d implementation. *)
 

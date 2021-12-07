@@ -1,0 +1,14 @@
+rescript = 1
+g_finger := /home/exu6jh/gomoku_fpse/frontend/node_modules/@rescript/react/lib/ocaml/install.stamp
+rule astj
+  command = /home/exu6jh/gomoku_fpse/frontend/node_modules/rescript/linux/bsc.exe  -bs-v 9.1.4 -bs-jsx 3  -absname -bs-ast -o $out $i
+o src/index.ast : astj ../../src/index.res
+rule deps
+  command = /home/exu6jh/gomoku_fpse/frontend/node_modules/rescript/linux/bsb_helper.exe -hash 335de725de22c69ec0ace68e4e4bb8ec $in
+  restat = 1
+o src/index.d : deps src/index.ast
+rule mij
+  command = /home/exu6jh/gomoku_fpse/frontend/node_modules/rescript/linux/bsc.exe -I src -I /home/exu6jh/gomoku_fpse/frontend/node_modules/@rescript/react/lib/ocaml   -bs-package-name frontend -bs-package-output es6:$in_d:.js -bs-v $g_finger $i
+  dyndep = 1
+  restat = 1
+o src/index.cmj src/index.cmi ../../src/index.js : mij src/index.ast

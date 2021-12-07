@@ -1,0 +1,50 @@
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Runner: processes
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Chooser: simple
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration suite_name = "Gomoku tests"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration cache_filename = "/home/exu6jh/gomoku_fpse/_build/default/api/tests/oUnit-$(suite_name).cache"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration run_gc_full_major = "true"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration display = "true"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration results_style_1_X = "false"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration testdata_dir = "none"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration health_check_interval = "1."
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration verbose = "false"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration chooser = "simple"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration output_html_dir = "none"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration processes_kill_period = "5."
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration runner = "processes"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration shards = "8"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration processes_grace_period = "5."
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration log_encoding = "utf-8"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration output_junit_file = "none"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration ci = "false"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Configuration output_file = "/home/exu6jh/gomoku_fpse/_build/default/api/tests/oUnit-$(suite_name)-$(shard_id).log"
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Using 8 workers maximum.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Starting worker number DESKTOP-4RVB28U#01.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Worker DESKTOP-4RVB28U#01 started.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Still 1 tests running : Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: 1 tests running: Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#01 I: Start test Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Still 1 tests running : Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: 1 tests running: Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#01 I: Test Gomoku tests:0:Board:0:Insert is successful.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Still 1 tests running : Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: 1 tests running: Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#01 I: End test Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Still 1 tests running : Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: 1 tests running: Gomoku tests:0:Board:0:Insert.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: 0 tests running: .
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Worker DESKTOP-4RVB28U#01 has ended.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Used 1 worker during test execution.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Run 1 tests with shard DESKTOP-4RVB28U#01.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Check health of shard DESKTOP-4RVB28U#01, 1 times.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: ==============
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Summary:
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Test Gomoku tests:0:Board:0:Insert is successful.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Ran: 1 tests in: 0.11 seconds.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Cases: 1.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Tried: 1.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Errors: 0.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Failures: 0.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Skip: 0.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Todo: 0.
+2021-12-06T18:35:44+00:00 DESKTOP-4RVB28U#00 I: Timeout: 0.
