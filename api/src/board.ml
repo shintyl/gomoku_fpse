@@ -42,7 +42,7 @@ module Board = struct
         let v2, l2 = longest_1d p c (x, y) (-dx, -dy) in
         match l2 with
         | _ :: tl -> (v1 + v2 - 1, List.rev_append tl l1)
-        | [] -> (0, []))
+        | [] -> (0, [])) [@@@coverage off]
   (* should not happen as per longest_1d implementation. *)
 
   let insert_check (p : pieces) (d : dirs) ((x, y) : Vect2.t) (t : char) : (bool, bool) result
