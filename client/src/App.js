@@ -10,6 +10,7 @@ const App = () => {
   const [pieces, setPieces] = useState(Array(19 * 19).fill('n', 0, 19 * 19))
   const [color, setColor] = useState('')
   const [victor, setVictor] = useState('')
+  const [isAiGame, setIsAiGame] = useState(false)
 
   useEffect(() => {
     fetch("/session/refresh", {
@@ -85,13 +86,26 @@ const App = () => {
       })
   }
 
+  const handleStartAiGame = () => {
+    fetch("/game/create_ai_opponent", {
+      method: 'POST',
+      credentials: 'include',
+    }).then(() => setIsAiGame(true))
+  }
+
   function handleSquareClick(i) {
     let turn = wsMessage
     if (wsMessage === 'game_start') {
       turn = 'b'
     }
     if (turn === color && pieces[i] === 'n') {
-      fetch("/game/make_move", {
+      let url = ''
+      if (isAiGame) {
+        url = '/game/make_move_ai'
+      } else {
+        url = '/game/make_move'
+      }
+      fetch(url, {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({
@@ -99,6 +113,7 @@ const App = () => {
           y: i % 19
         })
       })
+
     }
   }
 
@@ -144,11 +159,11 @@ const App = () => {
           </label>
           <input type="submit" value="Submit" />
         </form>
+        <button onClick={handleStartAiGame}>Start AI game</button>
         </div>
       </div>
     )
   }
-
 }
 
 export default App;
