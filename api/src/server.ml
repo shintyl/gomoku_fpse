@@ -34,14 +34,13 @@ type game_state = {
   b_id : string;
   w_id : string;
   winner_is_black : bool option;
-  b_id_ws : Dream.websocket option;
-  w_id_ws : Dream.websocket option;
 }
 
 let () =
   Random.self_init ();
 
   let sessions = Hash_set.create (module String) in
+  let session_id_to_ws = Hashtbl.create (module String) in
   let session_id_to_game_id = Hashtbl.create (module String) in
   let game_id_to_game_state = Hashtbl.create (module String) in
 
@@ -60,12 +59,14 @@ let () =
                      let%lwt () =
                        Dream.put_session "session" rand_num request
                      in
-                     Dream.json rand_num
+                     { message = rand_num } |> message_object_to_yojson
+                     |> Yojson.Safe.to_string |> Dream.json
                  | None ->
                      let%lwt () =
                        Dream.put_session "session" rand_num request
                      in
-                     Dream.json rand_num);
+                     { message = rand_num } |> message_object_to_yojson
+                     |> Yojson.Safe.to_string |> Dream.json);
              Dream.get "/get" (fun request ->
                  match Dream.session "session" request with
                  | Some s -> Dream.json s
@@ -80,33 +81,11 @@ let () =
                        | Some s -> s
                        | None -> failwith "Could not find session"
                      in
-                     let game_id =
-                       Hashtbl.find_exn session_id_to_game_id session_id
-                     in
-                     let game_state =
-                       Hashtbl.find_exn game_id_to_game_state game_id
-                     in
-                     Hashtbl.set game_id_to_game_state ~key:game_id
-                       ~data:
-                         {
-                           board = game_state.board;
-                           is_black_turn = game_state.is_black_turn;
-                           b_id = game_state.b_id;
-                           w_id = game_state.w_id;
-                           winner_is_black = game_state.winner_is_black;
-                           b_id_ws =
-                             (if String.equal game_state.b_id session_id then
-                              Some websocket
-                             else game_state.b_id_ws);
-                           w_id_ws =
-                             (if String.equal game_state.w_id session_id then
-                              Some websocket
-                             else game_state.w_id_ws);
-                         };
+                     Hashtbl.set session_id_to_ws ~key:session_id
+                       ~data:websocket;
                      let rec loop () =
                        match%lwt Dream.receive websocket with
-                       | Some _ ->
-                           loop ()
+                       | Some _ -> loop ()
                        | None -> Dream.close_websocket websocket
                      in
                      loop ()));
@@ -136,10 +115,15 @@ let () =
                        b_id = session_id;
                        w_id = other_session_id;
                        winner_is_black = None;
-                       b_id_ws = None;
-                       w_id_ws = None;
                      };
-                 Dream.json game_id);
+                 match
+                   ( Hashtbl.find_exn session_id_to_ws other_session_id,
+                     Hashtbl.find_exn session_id_to_ws session_id )
+                 with
+                 | ws_b, ws_w ->
+                     let%lwt () = Dream.send ws_b "game_start" in
+                     let%lwt () = Dream.send ws_w "game_start" in
+                     Dream.json game_id);
              Dream.post "/make_move" (fun request ->
                  let%lwt body = Dream.body request in
                  let coords = deserialize_coords body in
@@ -166,6 +150,16 @@ let () =
                        | false, false -> 'w'
                        | _, _ -> failwith "Invalid turn"
                      in
+                     let winner_is_black =
+                       match
+                         Board.Board.insert_check game_state.board
+                           [ (1, 0); (1, 1); (0, 1); (-1, 1) ]
+                           (coords.x, coords.y) color
+                       with
+                       | Error _ -> failwith "Invalid move"
+                       | Ok true -> Some game_state.is_black_turn
+                       | Ok false -> None
+                     in
                      match
                        Board.Board.insert game_state.board (coords.x, coords.y)
                          color
@@ -179,27 +173,29 @@ let () =
                                is_black_turn = not game_state.is_black_turn;
                                b_id = game_state.b_id;
                                w_id = game_state.w_id;
-                               winner_is_black =
-                                 (match
-                                    Board.Board.insert_check game_state.board
-                                      [ (1, 0); (1, 1); (0, 1); (-1, 1) ]
-                                      (coords.x, coords.y) color
-                                  with
-                                 | Error _ -> failwith "Invalid move"
-                                 | Ok true -> Some game_state.is_black_turn
-                                 | Ok false -> None);
-                               b_id_ws = game_state.b_id_ws;
-                               w_id_ws = game_state.w_id_ws;
+                               winner_is_black;
                              };
-                         match (game_state.b_id_ws, game_state.w_id_ws) with
-                         | Some ws_b, Some ws_w ->
+                         match
+                           ( Hashtbl.find_exn session_id_to_ws game_state.b_id,
+                             Hashtbl.find_exn session_id_to_ws game_state.w_id
+                           )
+                         with
+                         | ws_b, ws_w ->
                              let turn =
                                if not game_state.is_black_turn then "b" else "w"
                              in
-                             let%lwt () = Dream.send ws_b turn in
-                             let%lwt () = Dream.send ws_w turn in
-                             Dream.json (Board.Board.yojson_of_pieces new_board)
-                         | _ -> failwith "WS connection not found")));
+                             let is_winner =
+                               match winner_is_black with
+                               | Some _ -> true
+                               | None -> false
+                             in
+                             let msg =
+                               if is_winner then "game_complete" else turn
+                             in
+                             let%lwt () = Dream.send ws_b msg in
+                             let%lwt () = Dream.send ws_w msg in
+                             { message = "OK" } |> message_object_to_yojson
+                             |> Yojson.Safe.to_string |> Dream.json)));
              Dream.get "winner" (fun request ->
                  let session_id =
                    match Dream.session "session" request with
@@ -212,10 +208,14 @@ let () =
                  let game_state =
                    Hashtbl.find_exn game_id_to_game_state game_id
                  in
-                 match game_state.winner_is_black with
-                 | Some true -> Dream.json "b"
-                 | Some false -> Dream.json "w"
-                 | None -> Dream.json "none");
+                 let msg =
+                   match game_state.winner_is_black with
+                   | Some true -> "b"
+                   | Some false -> "w"
+                   | None -> "none"
+                 in
+                 { message = msg } |> message_object_to_yojson
+                 |> Yojson.Safe.to_string |> Dream.json);
              Dream.get "board" (fun request ->
                  let session_id =
                    match Dream.session "session" request with
@@ -229,6 +229,25 @@ let () =
                    Hashtbl.find_exn game_id_to_game_state game_id
                  in
                  Dream.json (Board.Board.yojson_of_pieces game_state.board));
+             Dream.get "color" (fun request ->
+                 let session_id =
+                   match Dream.session "session" request with
+                   | Some s -> s
+                   | None -> failwith "Could not find session"
+                 in
+                 let game_id =
+                   Hashtbl.find_exn session_id_to_game_id session_id
+                 in
+                 let game_state =
+                   Hashtbl.find_exn game_id_to_game_state game_id
+                 in
+                 let res =
+                   match String.( = ) session_id game_state.w_id with
+                   | true -> { message = "w" }
+                   | false -> { message = "b" }
+                 in
+                 res |> message_object_to_yojson |> Yojson.Safe.to_string
+                 |> Dream.json);
            ];
        ]
   @@ Dream.not_found
