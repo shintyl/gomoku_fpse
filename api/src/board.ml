@@ -7,9 +7,9 @@ end
 module Board = struct
   module Vect2Map : Map.S with type Key.t = Vect2.t = Map.Make (Vect2)
 
-  type piece_location = { x : int; y : int; c : char } [@@deriving yojson]
-
   type pieces = Char.t Vect2Map.t
+
+  type piece_location = { x : int; y : int; c : char } [@@deriving yojson]
 
   type dirs = Vect2.t List.t
 
