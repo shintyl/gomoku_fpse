@@ -14,7 +14,7 @@ type advantage = Int.t Board.Vect2Map.t
 let rec score_segment (p : Board.pieces) (pt : char) ((x, y) : Vect2.t)
     ((dx, dy) : Vect2.t) (len : int) (wt : int) : int =
   if len = 0 then 1
-  else match Vect2Map.find p (x, y) with
+  else match Board.Vect2Map.find p (x, y) with
   | None -> score_segment p pt (x + dx, y + dy) (dx, dy) (len - 1) wt
   | Some c -> if Char.(<>) c pt then 0
     else (score_segment p pt (x + dx, y + dy) (dx, dy) (len - 1) wt) * wt
@@ -25,7 +25,7 @@ let rec score_segment (p : Board.pieces) (pt : char) ((x, y) : Vect2.t)
   and is of the same kind as that specified.
 *)
 let overline (p : Board.pieces) (pt : char) ((x, y) : Vect2.t) : bool =
-  match Vect2Map.find p (x, y) with
+  match Board.Vect2Map.find p (x, y) with
   | None -> false
   | Some c -> Char.(=) c pt
 
@@ -52,7 +52,7 @@ let rec overline_score_pos (p : Board.pieces) (pt : char) ((x, y) : Vect2.t)
     ((dx, dy) : Vect2.t) (cur : int) (sum : int) (len : int) (wt : int) : int =
   if cur = 0 then sum
   else overline_score_pos p pt (x - dx, y - dy) (dx, dy) (cur - 1) (sum +
-    overline_score_segment p pt (x,y) (dx,dy) len) len wt
+    overline_score_segment p pt (x,y) (dx,dy) len wt) len wt
 
 (*
   Find the strategic value/advantage of the position
@@ -62,7 +62,7 @@ let rec overline_score_pos (p : Board.pieces) (pt : char) ((x, y) : Vect2.t)
 *)
 let advantage_pos (p : Board.pieces) (pt : char) (d : Board.dirs) ((x, y) : Vect2.t)
     (len : int) (wt : int) : int =
-  match Vect2Map.find p (x, y) with
+  match Board.Vect2Map.find p (x, y) with
   | Some _ -> 0
   | None -> let foldfun (i : int) ((dx, dy) : Vect2.t) =
       i + overline_score_pos p pt (x, y) (dx, dy) len 0 len wt

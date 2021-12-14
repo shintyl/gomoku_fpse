@@ -7,8 +7,8 @@
 
 (library
  (name ai)
- (modules)
- (libraries core)
+ (modules ai)
+ (libraries core board)
  (preprocess
   (pps bisect_ppx ppx_jane)))
 

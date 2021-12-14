@@ -123,6 +123,25 @@ let () =
         serialize_message "OK"
   in
 
+  let game_create_ai_opponent request =
+    let session_id = session_id_from_request request in
+    let game_id = session_id in
+    Hashtbl.add_exn session_id_to_game_id ~key:session_id ~data:game_id;
+    Hashtbl.add_exn game_id_to_game_state ~key:game_id
+      ~data:
+        {
+          board = Board.Board.Vect2Map.empty;
+          is_black_turn = true;
+          b_id = session_id;
+          w_id = "";
+          winner_is_black = None;
+        };
+    match Hashtbl.find_exn session_id_to_ws session_id with
+    | ws_b ->
+        let%lwt () = Dream.send ws_b "game_start" in
+        serialize_message "OK"
+  in
+
   let game_make_move request =
     let get_color game_state session_id =
       match
@@ -185,6 +204,87 @@ let () =
         send_ws_notif game_state winner_is_black
   in
 
+  let game_make_move_ai request =
+    let%lwt body = Dream.body request in
+    let coords = deserialize_coords body in
+    let _, game_id, game_state = session_id_lookup request in
+    let ws_b = Hashtbl.find_exn session_id_to_ws game_state.b_id in
+    let board_after_insertion =
+      match Board.Board.insert game_state.board (coords.x, coords.y) 'b' with
+      | Error _ -> failwith "Invalid move"
+      | Ok new_board -> new_board
+    in
+    match
+      Board.Board.insert_check game_state.board
+        [ (1, 0); (1, 1); (0, 1); (-1, 1) ]
+        (coords.x, coords.y) 'b'
+    with
+    | Error _ -> failwith "Invalid move"
+    | Ok true ->
+        Hashtbl.set game_id_to_game_state ~key:game_id
+          ~data:
+            {
+              board = board_after_insertion;
+              is_black_turn = not game_state.is_black_turn;
+              b_id = game_state.b_id;
+              w_id = game_state.w_id;
+              winner_is_black = Some true;
+            };
+        let%lwt () = Dream.send ws_b "game_complete" in
+        serialize_message "OK"
+    | Ok false -> (
+        Hashtbl.set game_id_to_game_state ~key:game_id
+          ~data:
+            {
+              board = board_after_insertion;
+              is_black_turn = not game_state.is_black_turn;
+              b_id = game_state.b_id;
+              w_id = game_state.w_id;
+              winner_is_black = game_state.winner_is_black;
+            };
+        let%lwt () = Dream.send ws_b "w" in
+        let _, ai_coord =
+          Ai.advantage_max board_after_insertion
+            [ (1, 0); (1, 1); (0, 1); (-1, 1) ]
+            (19, 19) 'w' 'b'
+        in
+        let board_after_ai_insertion =
+          match Board.Board.insert board_after_insertion ai_coord 'w' with
+          | Error _ -> failwith "Invalid move"
+          | Ok new_board -> new_board
+        in
+        match
+          Board.Board.insert_check board_after_insertion
+            [ (1, 0); (1, 1); (0, 1); (-1, 1) ]
+            ai_coord 'w'
+        with
+        | Error _ -> failwith "Invalid move"
+        | Ok true ->
+            Hashtbl.set game_id_to_game_state ~key:game_id
+              ~data:
+                {
+                  board = board_after_ai_insertion;
+                  is_black_turn = not game_state.is_black_turn;
+                  b_id = game_state.b_id;
+                  w_id = game_state.w_id;
+                  winner_is_black = Some false;
+                };
+            let%lwt () = Dream.send ws_b "game_complete" in
+            serialize_message "OK"
+        | Ok false ->
+            Hashtbl.set game_id_to_game_state ~key:game_id
+              ~data:
+                {
+                  board = board_after_ai_insertion;
+                  is_black_turn = not game_state.is_black_turn;
+                  b_id = game_state.b_id;
+                  w_id = game_state.w_id;
+                  winner_is_black = game_state.winner_is_black;
+                };
+            let%lwt () = Dream.send ws_b "b" in
+            serialize_message "OK")
+  in
+
   let game_winner request =
     let _, _, game_state = session_id_lookup request in
     let msg =
@@ -226,6 +326,8 @@ let () =
              Dream.get "/winner" game_winner;
              Dream.get "/board" game_board;
              Dream.get "/color" game_color;
+             Dream.post "/make_move_ai" game_make_move_ai;
+             Dream.post "/create_ai_opponent" game_create_ai_opponent;
            ];
        ]
   @@ Dream.not_found
