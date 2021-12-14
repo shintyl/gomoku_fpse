@@ -5,9 +5,16 @@
  (preprocess
   (pps bisect_ppx ppx_jane ppx_deriving_yojson)))
 
+(library
+ (name ai)
+ (modules)
+ (libraries core)
+ (preprocess
+  (pps bisect_ppx ppx_jane)))
+
 (executable
  (name server)
  (modules server)
- (libraries board core dream yojson ppx_deriving_yojson.runtime lwt_react)
+ (libraries ai board core dream yojson ppx_deriving_yojson.runtime lwt_react)
  (preprocess
   (pps ppx_deriving_yojson ppx_jane lwt_ppx)))
