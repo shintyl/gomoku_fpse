@@ -44,9 +44,9 @@ let overline_score_segment (p : Board.pieces) (pt : char) ((x, y) : Vect2.t)
 
 (*
   Score the strategic value of the position (x, y)
-  in the direction of (dx, dy), taking the sum of
-  the strategic value of all segments of length len
-  in the direction (dx, dy) including (x, y).
+  in the direction of (dx, dy), taking the weighted
+  sum of the strategic value of all segments of length
+  len in the direction (dx, dy) including (x, y).
 *)
 let rec overline_score_pos (p : Board.pieces) (pt : char) ((x, y) : Vect2.t)
     ((dx, dy) : Vect2.t) (cur : int) (sum : int) (len : int) (wt : int) : int =
@@ -85,8 +85,8 @@ let grid ((m,n) : Vect2.t) : Vect2.t list =
   disruption) and position of said double-advantage from
   around a given point.
   Weighting assigned to AI pieces is 4, weighting assigned
-  to player pieces is 3; fulfilling the AI's own lines is
-  more important than blocking enemy lines.
+  to player pieces is 4; the AI needs to focus on defensive
+  behavior since it starts second.
 
   This should be used to determine the ideal position to
   place a piece at (although not guaranteed to be
@@ -95,7 +95,7 @@ let grid ((m,n) : Vect2.t) : Vect2.t list =
 let advantage_max (p : Board.pieces) (d : Board.dirs) ((h,w) : Vect2.t)
     (ai : char) (player : char) : int * Vect2.t =
   let foldfun ((max,vmax) : int * Vect2.t) (vcomp : Vect2.t) =
-    let apsum = advantage_pos p ai d vcomp 5 4
-      + advantage_pos p player d vcomp 5 3 in
+    let apsum = advantage_pos p ai d vcomp 5 3
+      + advantage_pos p player d vcomp 5 4 in
     if apsum > max then (apsum,vcomp) else (max,vmax)
   in List.fold (grid (h,w)) ~init:(0,(0,0)) ~f:foldfun

@@ -146,19 +146,21 @@ const App = () => {
     return (
       <div id = "bg">
         <div class = "flex-container-2">
-        Your assigned session ID is:
+        <p id="title">五caml</p>
+        <br/>Your assigned session ID is:
         <form>
           <label>
             <input type="text" name="assignedID" value={sessionId}/>
           </label>
         </form>
-        Want to join someone else's game? Type their ID into here:
+        <br/>Want to join someone else's game? Type their ID into here:
         <form onSubmit={handleSubmit}>
           <label>
             <input type="text" name="name" onChange={handleInputChange} />
           </label>
           <input type="submit" value="Submit" />
         </form>
+        <br/>Want to play an AI game?
         <button onClick={handleStartAiGame}>Start AI game</button>
         </div>
       </div>
