@@ -1,7 +1,14 @@
 import './Board.css'
 
 const Square = (props) => {
-    const v = props.value === 'n' ? '' : props.value
+    let v = props.value === 'n' ? '' : props.value
+
+    if (v === 'b') {
+        v = '●'
+    } else if (v === 'w') {
+        v = '○'
+    }
+
     return (
         <button className="square" onClick={props.onClick}>
             {v}

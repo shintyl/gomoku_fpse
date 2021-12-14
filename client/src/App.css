@@ -1,0 +1,65 @@
+#bg {
+  background: #57a;
+  position:absolute;
+  left:0px;
+  top:0px;
+  height: 100%;
+  width: 100%;
+  
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  color: black;
+}
+
+.flex-container-1 {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.flex-container-2 {
+    background-color: #fff;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+    height: 80%;
+    width: 50%;
+    top: 10%;
+    left: 25%;
+    
+    border-radius: 5% 5%;
+}
+
+.gameinfo {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  height: 30%;
+  border-radius: 5px;
+}
+
+.whitepanel {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  height: 100%;
+  margin: 5%;
+  padding: 15%;
+}
+
+.mainbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  border-radius: 20px;
+  width: 45%;
+  height: 90%;
+  margin: 5%;
+}

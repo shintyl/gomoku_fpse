@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Board from './Board'
+import './App.css'
 
 const App = () => {
   const [wsMessage, setWsMessage] = useState('')
@@ -8,6 +9,7 @@ const App = () => {
   const [field, setField] = useState('')
   const [pieces, setPieces] = useState(Array(19 * 19).fill('n', 0, 19 * 19))
   const [color, setColor] = useState('')
+  const [victor, setVictor] = useState('')
 
   useEffect(() => {
     fetch("/session/refresh", {
@@ -43,7 +45,7 @@ const App = () => {
         credentials: 'include',
       })
         .then(response => response.json())
-        .then(data => alert('winner is '.concat(data['message'])))
+        .then(data => setVictor(data['message']))
     } else if (wsMessage) {
       updatePieces()
     }
@@ -106,23 +108,43 @@ const App = () => {
       turn = 'b'
     }
     return (
-      <div>
-        <header>Your color: {color}</header>
-        <header>Turn: {turn}</header>
-        <Board pieces={pieces} onClick={i => handleSquareClick(i)} />
+      <div id="bg">
+        <div class="flex-container-1">
+          <div class="gameinfo">
+            <div class="whitepanel">
+              <header>You are playing<br/><b>{color === 'b' ? "black" : "white"}</b> pieces.</header>
+            </div>
+            <div class="whitepanel">
+              <header>{turn === "game_complete" ?
+                ("Game over: ".concat(victor === 'b' ? "black" : "white").concat(" wins.")) :
+                ("It is ".concat(turn === 'b' ? "black's" : "white's").concat(" turn."))}
+              </header>
+            </div>
+          </div>
+          <div class="mainbox">
+            <Board pieces={pieces} onClick={i => handleSquareClick(i)} />
+          </div>
+        </div>
       </div>
     )
   } else {
     return (
-      <div>
-        {sessionId}
+      <div id = "bg">
+        <div class = "flex-container-2">
+        Your assigned session ID is:
+        <form>
+          <label>
+            <input type="text" name="assignedID" value={sessionId}/>
+          </label>
+        </form>
+        Want to join someone else's game? Type their ID into here:
         <form onSubmit={handleSubmit}>
           <label>
-            Session ID:
             <input type="text" name="name" onChange={handleInputChange} />
           </label>
           <input type="submit" value="Submit" />
         </form>
+        </div>
       </div>
     )
   }
