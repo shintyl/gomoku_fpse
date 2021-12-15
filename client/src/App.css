@@ -10,6 +10,10 @@
   color: black;
 }
 
+#title {
+  font-size: 50px;
+}
+
 .flex-container-1 {
   display: flex;
   flex-flow: row nowrap;
