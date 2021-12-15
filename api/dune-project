@@ -1,1 +1,29 @@
 (lang dune 2.9)
+
+(generate_opam_files true)
+
+(authors "Everett Xu" "Tyler Shin")
+
+(maintainers "tshin5@jhu.edu")
+
+(package
+ (name gomoku_fpse)
+ (synopsis "Game server for Gomoku")
+ (description "Game server for Gomoko")
+ (depends
+  (ounit2
+   (> 2.0))
+  (core
+   (> 0.14.1))
+  (dream
+   (= 1.0.0~alpha2))
+  (yojson
+   (>= 1.7.0))
+  (ppx_deriving_yojson
+   (>= 3.6.1))
+  (bisect_ppx
+   (>= 2.6.0))
+  (ppx_jane
+   (> 0.14.0))
+  (lwt_ppx
+   (>= 2.0.2))))

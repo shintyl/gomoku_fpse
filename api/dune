@@ -3,6 +3,8 @@
   (deps 
     src/board.ml
     src/dune
+    tests/tests.ml
+    tests/dune
   )
   (action
     (run zip -R gomoku.zip %{deps})))

@@ -1,0 +1,23 @@
+.square {
+  background: #da5;
+  border: 1px solid #333;
+  float: left;
+  font-size: 30px;
+  line-height: 25px;
+  height: 25px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 25px;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}

@@ -1,0 +1,8 @@
+(test
+  (name tests)
+  (libraries
+    core
+    ounit2
+    board)
+  (preprocess (pps ppx_jane))
+)

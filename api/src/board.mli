@@ -10,6 +10,8 @@ module Board : sig
     *)
     module Vect2Map : Map.S with type Key.t = Vect2.t
 
+    type piece_location = { x : int; y : int; c : char } [@@deriving yojson]
+
     (*
         Mapping from vectors of 2 elements (positions on board)
         to characters (representing player or type/color of piece.)
@@ -21,6 +23,8 @@ module Board : sig
         representing directions of winnable lines.
     *)
     type dirs = (Vect2.t) List.t
+
+    val yojson_of_pieces : pieces -> string
 
     (*
         Insert a new piece into a map of pieces if valid.
@@ -43,5 +47,5 @@ module Board : sig
     (*
         Attempt to insert and check if insertion leads to a win.
     *)
-    val insert_check : pieces -> dirs -> Vect2.t -> char -> bool
+    val insert_check : pieces -> dirs -> Vect2.t -> char -> (bool, bool) result
 end
