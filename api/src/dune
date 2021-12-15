@@ -15,6 +15,6 @@
 (executable
  (name server)
  (modules server)
- (libraries ai board core dream yojson ppx_deriving_yojson.runtime lwt_react)
+ (libraries ai board core dream yojson ppx_deriving_yojson.runtime)
  (preprocess
   (pps ppx_deriving_yojson ppx_jane lwt_ppx)))
