@@ -12,4 +12,4 @@ Building and running
  - In another terminal window, run ```dune exec src/server.exe``` from the ```api``` directory. This will first build server.exe and then run it.
 
 Accessing the application
- - Navigate to ```localhost:3000``` in a web browser
+ - Navigate to ```localhost:3000``` in a web browser. Note that if you wish to simulate multiplayer, you'll need two instances of a browser open, as opposed to two tabs open in a single browser (cookies must be unique for each player).
