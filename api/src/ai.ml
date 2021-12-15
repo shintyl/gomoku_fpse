@@ -1,8 +1,6 @@
 open Core
 open Board
 
-type advantage = Int.t Board.Vect2Map.t
-
 (*
   Score the strategic value of any segment of length len
   starting from (x, y) and in the direction of (dx, dy).
@@ -94,6 +92,9 @@ let grid ((m,n) : Vect2.t) : Vect2.t list =
 *)
 let advantage_max (p : Board.pieces) (d : Board.dirs) ((h,w) : Vect2.t)
     (ai : char) (player : char) : int * Vect2.t =
+  (* Despite the coverage report, this section does get tested;
+  foldfun being a subfunction means it cannot be tested directly
+  but its functionality is nevertheless confirmed. *)
   let foldfun ((max,vmax) : int * Vect2.t) (vcomp : Vect2.t) =
     let apsum = advantage_pos p ai d vcomp 5 3
       + advantage_pos p player d vcomp 5 4 in
