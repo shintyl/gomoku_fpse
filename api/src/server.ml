@@ -311,23 +311,25 @@ let () =
     serialize_message msg
   in
 
-  Dream.run @@ Dream.logger @@ Dream.memory_sessions
-  @@ Dream.router
-       [
-         Dream.scope "/session" []
-           [
-             Dream.post "/refresh" session_refresh; Dream.get "/get" session_get;
-           ];
-         Dream.scope "/game" []
-           [
-             Dream.get "/connect" game_connect;
-             Dream.post "/create" game_create;
-             Dream.post "/make_move" game_make_move;
-             Dream.get "/winner" game_winner;
-             Dream.get "/board" game_board;
-             Dream.get "/color" game_color;
-             Dream.post "/make_move_ai" game_make_move_ai;
-             Dream.post "/create_ai_opponent" game_create_ai_opponent;
-           ];
-       ]
-  @@ Dream.not_found
+  Dream.run ~interface:"0.0.0.0"
+    (Dream.logger @@ Dream.memory_sessions
+    @@ Dream.router
+         [
+           Dream.scope "/session" []
+             [
+               Dream.post "/refresh" session_refresh;
+               Dream.get "/get" session_get;
+             ];
+           Dream.scope "/game" []
+             [
+               Dream.get "/connect" game_connect;
+               Dream.post "/create" game_create;
+               Dream.post "/make_move" game_make_move;
+               Dream.get "/winner" game_winner;
+               Dream.get "/board" game_board;
+               Dream.get "/color" game_color;
+               Dream.post "/make_move_ai" game_make_move_ai;
+               Dream.post "/create_ai_opponent" game_create_ai_opponent;
+             ];
+         ]
+    @@ Dream.not_found)

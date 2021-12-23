@@ -23,7 +23,7 @@ const App = () => {
 
   useEffect(() => {
     if (sessionId) {
-      webSocket.current = new WebSocket("ws://localhost:8080/game/connect");
+      webSocket.current = new WebSocket("ws://" + window.location.hostname + ":8080/game/connect");
       webSocket.current.onmessage = (message) => {
         setWsMessage(message.data)
       }
