@@ -3,6 +3,7 @@
   (libraries
     core
     ounit2
-    board)
+    board
+    ai)
   (preprocess (pps ppx_jane))
 )

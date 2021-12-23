@@ -1,6 +1,7 @@
 (rule
   (target gomoku.zip)
   (deps 
+    src/ai.ml
     src/board.ml
     src/dune
     tests/tests.ml
